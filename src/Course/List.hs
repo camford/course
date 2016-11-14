@@ -75,8 +75,10 @@ headOr ::
   a
   -> List a
   -> a
-headOr =
-  error "todo: Course.List#headOr"
+--headOr x Nil = x
+--headOr _ (x:._) = x
+headOr a list = foldRight const a list
+--headOr a list = foldRight (\x xs -> h) a list
 
 -- | The product of the elements of a list.
 --
@@ -88,8 +90,7 @@ headOr =
 product ::
   List Int
   -> Int
-product =
-  error "todo: Course.List#product"
+product = foldLeft (*) 1
 
 -- | Sum the elements of the list.
 --
@@ -103,8 +104,7 @@ product =
 sum ::
   List Int
   -> Int
-sum =
-  error "todo: Course.List#sum"
+sum = foldLeft (+) 0
 
 -- | Return the length of the list.
 --
@@ -115,8 +115,8 @@ sum =
 length ::
   List a
   -> Int
-length =
-  error "todo: Course.List#length"
+length = foldLeft (const . (+1)) 0
+--length = foldLeft (\t _ -> t + 1) 0
 
 -- | Map the given function on each element of the list.
 --
@@ -130,8 +130,12 @@ map ::
   (a -> b)
   -> List a
   -> List b
-map =
-  error "todo: Course.List#map"
+map _ Nil = Nil
+map f (x:.xs) = f x :. map f xs
+--map f = foldRight
+--          (\x xs -> f x :. xs)
+--          Nil
+  
 
 -- | Return elements satisfying the given predicate.
 --
@@ -147,8 +151,13 @@ filter ::
   (a -> Bool)
   -> List a
   -> List a
-filter =
-  error "todo: Course.List#filter"
+filter p = foldRight (\x xs -> if p x then x :. xs else xs) Nil
+--filter _ Nil = Nil
+--filter p (x:.xs) = if p x then
+--                       x :. filter p xs
+--                   else
+--                       filter p xs
+  
 
 -- | Append two lists to a new list.
 --
@@ -166,8 +175,12 @@ filter =
   List a
   -> List a
   -> List a
-(++) =
-  error "todo: Course.List#(++)"
+(++) l1 l2 = foldRight (:.) l2 l1
+--(++) xs Nil = xs
+--(++) Nil ys = ys
+--(++) (x:.Nil) ys = x :. ys
+--(++) (x:.xs) ys = x :. xs ++ ys
+
 
 infixr 5 ++
 
@@ -184,8 +197,8 @@ infixr 5 ++
 flatten ::
   List (List a)
   -> List a
-flatten =
-  error "todo: Course.List#flatten"
+flatten = foldRight (++) Nil
+  
 
 -- | Map a function then flatten to a list.
 --
@@ -201,8 +214,8 @@ flatMap ::
   (a -> List b)
   -> List a
   -> List b
-flatMap =
-  error "todo: Course.List#flatMap"
+flatMap f = flatten . ( map f )
+--flatMap f = foldRight ((++) . f) Nil
 
 -- | Flatten a list of lists to a list (again).
 -- HOWEVER, this time use the /flatMap/ function that you just wrote.
@@ -211,8 +224,7 @@ flatMap =
 flattenAgain ::
   List (List a)
   -> List a
-flattenAgain =
-  error "todo: Course.List#flattenAgain"
+flattenAgain = flatMap id
 
 -- | Convert a list of optional values to an optional list of values.
 --
@@ -239,8 +251,23 @@ flattenAgain =
 seqOptional ::
   List (Optional a)
   -> Optional (List a)
-seqOptional =
-  error "todo: Course.List#seqOptional"
+-- x :: Optional a
+-- b :: List (Optional a)
+-- seqOptional t :: Optional (List a)
+-- 
+seqOptional Nil = Full Nil
+seqOptional (x:.xs) =
+    case x of
+        Empty -> Empty
+        Full b -> case seqOptional xs of
+                    Empty -> Empty
+                    Full c -> Full (b :. c)
+--seqOptional xs = foldRight unwrap (Full Nil) xs
+--                   where unwrap :: Optional a -> Optional (List a) -> Optional (List a)
+--                         unwrap Empty _= Empty
+--                         unwrap _ Empty = Empty
+--                         unwrap (Full y) (Full ys) = Full (y :. ys)
+                         
 
 -- | Find the first element in the list matching the predicate.
 --
@@ -262,8 +289,9 @@ find ::
   (a -> Bool)
   -> List a
   -> Optional a
-find =
-  error "todo: Course.List#find"
+find _ Nil = Empty
+find p (x:.xs) = if p x then Full x else find p xs
+--find p = headOr Empty . map Full . filter p
 
 -- | Determine if the length of the given list is greater than 4.
 --
@@ -281,8 +309,8 @@ find =
 lengthGT4 ::
   List a
   -> Bool
-lengthGT4 =
-  error "todo: Course.List#lengthGT4"
+lengthGT4 (_:._:._:._:._) = True
+lengthGT4 _ = False
 
 -- | Reverse a list.
 --
@@ -298,9 +326,10 @@ lengthGT4 =
 reverse ::
   List a
   -> List a
-reverse =
-  error "todo: Course.List#reverse"
+reverse = foldLeft (flip (:.)) Nil
+--reverse = foldLeft (\y x -> x :. y) Nil
 
+-- THIS EXERCISE IS SUPPOSED TO BE DELETED
 -- | Produce an infinite `List` that seeds with the given value at its head,
 -- then runs the given function for subsequent elements
 --
@@ -313,8 +342,8 @@ produce ::
   (a -> a)
   -> a
   -> List a
-produce =
-  error "todo: Course.List#produce"
+produce f a =
+  a :. produce f (f a)
 
 -- | Do anything other than reverse a list.
 -- Is it even possible?
@@ -328,8 +357,7 @@ produce =
 notReverse ::
   List a
   -> List a
-notReverse =
-  error "todo: Is it even possible?"
+notReverse = id
 
 ---- End of list exercises
 
