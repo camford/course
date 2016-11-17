@@ -74,7 +74,11 @@ the contents of c
 main ::
   IO ()
 main =
-  error "todo: Course.FileIO#main"
+  do a <- getArgs
+     case a of
+       x:._ -> run x
+       _ -> putStrLn "please pass an argument"
+--void ( run <$> (readFile <$> getArgs))
 
 type FilePath =
   Chars
@@ -83,31 +87,45 @@ type FilePath =
 run ::
   Chars
   -> IO ()
-run =
-  error "todo: Course.FileIO#run"
+run input =
+  readFile input >>= \r ->
+  getFiles (lines r) >>= \s ->
+  printFiles s
+--  void (printFiles <$> (getFiles (lines input))) -- This will compile but isn't correct
 
 getFiles ::
   List FilePath
   -> IO (List (FilePath, Chars))
-getFiles =
-  error "todo: Course.FileIO#getFiles"
+getFiles filenames =
+  sequence (getFile <$> filenames)
 
 getFile ::
   FilePath
   -> IO (FilePath, Chars)
-getFile =
-  error "todo: Course.FileIO#getFile"
+getFile filename = 
+--  do
+--    c <- readFile filename
+--    pure (filename,c)
+  (\c -> (filename,c)) <$> (readFile filename)
+--getFile =  lift2 (<$>) (,) readFile
 
 printFiles ::
   List (FilePath, Chars)
   -> IO ()
-printFiles =
-  error "todo: Course.FileIO#printFiles"
+printFiles files =
+--  void (sequence ((uncurry printFile) <$> files))
+  (void . sequence) ((uncurry printFile) <$> files)
+--  (void . sequence) ((<$>) (uncurry printFile) files)
+--printFiles = (void . sequence) . ((<$>) (uncurry printFile))
 
 printFile ::
   FilePath
   -> Chars
   -> IO ()
-printFile =
-  error "todo: Course.FileIO#printFile"
+printFile filename contents =
+  putStrLn ("=======" ++ filename) *> putStrLn contents
+--  (\_ -> putStrLn contents) =<< putStrLn ("======" ++ filename)
+--  do
+--    putStrLn ((listh "=============") ++ filename)
+--    putStrLn contents
 

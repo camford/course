@@ -118,8 +118,10 @@ instance Monad ((->) t) where
     (a -> ((->) t b))
     -> ((->) t a)
     -> ((->) t b)
-  (=<<) =
-    error "todo: Course.Monad (=<<)#instance ((->) t)"
+--  (=<<) :: (a -> ((->) t b)) -> ((->) t a) -> ((->) t b)
+--  (=<<) :: (a -> (t -> b)) -> (t ->  a) -> (t -> b)
+--  (=<<) :: (a -> t -> b) -> (t -> a) -> t -> b
+  (=<<) x y z = x (y z) z
 
 -- | Flattens a combined structure to a single structure.
 --
@@ -152,8 +154,7 @@ join =
   f a
   -> (a -> f b)
   -> f b
-(>>=) =
-  error "todo: Course.Monad#(>>=)"
+(>>=) = flip (=<<)
 
 infixl 1 >>=
 
