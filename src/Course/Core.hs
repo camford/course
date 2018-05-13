@@ -6,9 +6,7 @@ module Course.Core(
   Eq(..)
 , Ord(..)
 , Show(..)
-, Enum(..)
 , Integral(..)
-, Bounded(..)
 , RealFrac(..)
 , Num(..)
 , Fractional(..)
@@ -45,6 +43,7 @@ module Course.Core(
 , IsString(..)
 , module Data.Char
 , ifThenElse
+, bool
 ) where
 
 
@@ -52,9 +51,7 @@ import Prelude(
     Eq(..)
   , Ord(..)
   , Show(..)
-  , Enum(..)
   , Integral(..)
-  , Bounded(..)
   , RealFrac(..)
   , Num(..)
   , Fractional(..)
@@ -111,3 +108,14 @@ ifThenElse True t _ =
   t
 ifThenElse False _ f =
   f
+
+bool ::
+  a
+  -> a
+  -> Bool
+  -> a
+bool f _ False =
+  f
+bool _ t True =
+  t
+

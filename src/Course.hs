@@ -6,14 +6,14 @@ module Course (module X) where
 import Course.Anagrams as X
 import Course.Applicative as X
 import Course.Cheque as X
-import Course.Comonad as X
+import Course.Comonad as X (Comonad (..))
 import Course.Compose as X
 import Course.Core as X
+import Course.ExactlyOne as X
 import Course.Extend as X
 import Course.FastAnagrams as X
 import Course.FileIO as X
 import Course.Functor as X
-import Course.Id as X
 import Course.Interactive as X
 import Course.JsonParser as X
 import Course.JsonValue as X

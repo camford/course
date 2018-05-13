@@ -31,16 +31,56 @@ newtype State s a =
       -> (a, s)
   }
 
+-- | Run the `State` seeded with `s` and retrieve the resulting state.
+--
+-- prop> \(Fun _ f) s -> exec (State f) s == snd (runState (State f) s)
+exec ::
+  State s a
+  -> s
+  -> s
+exec =
+  error "todo: Course.State#exec"
+
+-- | Run the `State` seeded with `s` and retrieve the resulting value.
+--
+-- prop> \(Fun _ f) s -> eval (State f) s == fst (runState (State f) s)
+eval ::
+  State s a
+  -> s
+  -> a
+eval =
+  error "todo: Course.State#eval"
+
+-- | A `State` where the state also distributes into the produced value.
+--
+-- >>> runState get 0
+-- (0,0)
+get ::
+  State s s
+get =
+  error "todo: Course.State#get"
+
+-- | A `State` where the resulting state is seeded with the given value.
+--
+-- >>> runState (put 1) 0
+-- ((),1)
+put ::
+  s
+  -> State s ()
+put =
+  error "todo: Course.State#put"
+
 -- | Implement the `Functor` instance for `State s`.
--- >>> runState ((+1) <$> pure 0) 0
--- (1,0)
+--
+-- >>> runState ((+1) <$> State (\s -> (9, s * 2))) 3
+-- (10,6)
 instance Functor (State s) where
   (<$>) ::
     (a -> b)
     -> State s a
     -> State s b
   (<$>) =
-      error "todo: Course.State#(<$>)"
+    error "todo: Course.State#(<$>)"
 
 -- | Implement the `Applicative` instance for `State s`.
 --
@@ -81,45 +121,6 @@ instance Monad (State s) where
   (=<<) =
     error "todo: Course.State (=<<)#instance (State s)"
 
--- | Run the `State` seeded with `s` and retrieve the resulting state.
---
--- prop> \(Fun _ f) -> exec (State f) s == snd (runState (State f) s)
-exec ::
-  State s a
-  -> s
-  -> s
-exec =
-  error "todo: Course.State#exec"
-
--- | Run the `State` seeded with `s` and retrieve the resulting value.
---
--- prop> \(Fun _ f) -> eval (State f) s == fst (runState (State f) s)
-eval ::
-  State s a
-  -> s
-  -> a
-eval =
-  error "todo: Course.State#eval"
-
--- | A `State` where the state also distributes into the produced value.
---
--- >>> runState get 0
--- (0,0)
-get ::
-  State s s
-get =
-  error "todo: Course.State#get"
-
--- | A `State` where the resulting state is seeded with the given value.
---
--- >>> runState (put 1) 0
--- ((),1)
-put ::
-  s
-  -> State s ()
-put =
-  error "todo: Course.State#put"
-
 -- | Find the first element in a `List` that satisfies a given predicate.
 -- It is possible that no element is found, hence an `Optional` result.
 -- However, while performing the search, we sequence some `Monad` effect through.
@@ -147,8 +148,8 @@ findM =
 --
 -- /Tip:/ Use `findM` and `State` with a @Data.Set#Set@.
 --
--- prop> case firstRepeat xs of Empty -> let xs' = hlist xs in nub xs' == xs'; Full x -> length (filter (== x) xs) > 1
--- prop> case firstRepeat xs of Empty -> True; Full x -> let (l, (rx :. rs)) = span (/= x) xs in let (l2, r2) = span (/= x) rs in let l3 = hlist (l ++ (rx :. Nil) ++ l2) in nub l3 == l3
+-- prop> \xs -> case firstRepeat xs of Empty -> let xs' = hlist xs in nub xs' == xs'; Full x -> length (filter (== x) xs) > 1
+-- prop> \xs -> case firstRepeat xs of Empty -> True; Full x -> let (l, (rx :. rs)) = span (/= x) xs in let (l2, r2) = span (/= x) rs in let l3 = hlist (l ++ (rx :. Nil) ++ l2) in nub l3 == l3
 firstRepeat ::
   Ord a =>
   List a
@@ -159,9 +160,9 @@ firstRepeat =
 -- | Remove all duplicate elements in a `List`.
 -- /Tip:/ Use `filtering` and `State` with a @Data.Set#Set@.
 --
--- prop> firstRepeat (distinct xs) == Empty
+-- prop> \xs -> firstRepeat (distinct xs) == Empty
 --
--- prop> distinct xs == distinct (flatMap (\x -> x :. x :. Nil) xs)
+-- prop> \xs -> distinct xs == distinct (flatMap (\x -> x :. x :. Nil) xs)
 distinct ::
   Ord a =>
   List a
