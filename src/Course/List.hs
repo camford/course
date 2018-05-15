@@ -75,8 +75,7 @@ headOr ::
   a
   -> List a
   -> a
-headOr _ (x :. _) = x
-headOr x _ = x
+headOr c xs = foldRight const c xs
 
 -- | The product of the elements of a list.
 --
@@ -91,8 +90,7 @@ headOr x _ = x
 product ::
   List Int
   -> Int
-product Nil = 1
-product (x :. xs) = x * (product xs)
+product = foldRight (*) 1
 
 -- | Sum the elements of the list.
 --
@@ -106,8 +104,7 @@ product (x :. xs) = x * (product xs)
 sum ::
   List Int
   -> Int
-sum Nil = 0
-sum (x :. xs) = x + (sum xs)
+sum = foldRight (+) 0
 
 -- | Return the length of the list.
 --
@@ -118,8 +115,7 @@ sum (x :. xs) = x + (sum xs)
 length ::
   List a
   -> Int
-length Nil = 0
-length (_ :. xs) = 1 + (length xs)
+length = foldLeft (const . (1 +)) 0
 
 -- | Map the given function on each element of the list.
 --
