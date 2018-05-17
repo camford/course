@@ -75,7 +75,7 @@ headOr ::
   a
   -> List a
   -> a
-headOr c xs = foldRight const c xs
+headOr = foldRight const
 
 -- | The product of the elements of a list.
 --
@@ -115,7 +115,7 @@ sum = foldRight (+) 0
 length ::
   List a
   -> Int
-length = foldLeft (const . (1 +)) 0
+length = foldRight (flip (const . (+1))) 0
 
 -- | Map the given function on each element of the list.
 --
@@ -129,8 +129,7 @@ map ::
   (a -> b)
   -> List a
   -> List b
-map _ Nil = Nil
-map f (x :. xs) = (f x) :. (map f xs)
+map f = foldRight ((:.) . f) Nil
 
 -- | Return elements satisfying the given predicate.
 --
@@ -146,11 +145,7 @@ filter ::
   (a -> Bool)
   -> List a
   -> List a
-filter _ Nil = Nil
-filter f (x :. xs) = if (f x) == True then
-                         x :. (filter f xs)
-                     else
-                         filter f xs
+filter p = foldRight (\x -> if p x then ((:.) x) else id) Nil
 
 -- | Append two lists to a new list.
 --
@@ -186,8 +181,7 @@ infixr 5 ++
 flatten ::
   List (List a)
   -> List a
-flatten Nil = Nil
-flatten (x :. xs) = x ++ (flatten xs)
+flatten = foldRight (++) Nil
 
 -- | Map a function then flatten to a list.
 --
@@ -203,8 +197,7 @@ flatMap ::
   (a -> List b)
   -> List a
   -> List b
-flatMap _ Nil = Nil
-flatMap f (x :. xs) = (f x) ++ (flatMap f xs)
+flatMap f = flatten . (map f)
 
 -- | Flatten a list of lists to a list (again).
 -- HOWEVER, this time use the /flatMap/ function that you just wrote.
