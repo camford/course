@@ -163,8 +163,7 @@ filter p = foldRight (\x -> if p x then ((:.) x) else id) Nil
   List a
   -> List a
   -> List a
-(++) Nil ys = ys
-(++) (x :. xs) ys = x :. (xs ++ ys)
+(++) xs ys = foldRight (:.) ys xs
 
 infixr 5 ++
 
@@ -197,7 +196,7 @@ flatMap ::
   (a -> List b)
   -> List a
   -> List b
-flatMap f = flatten . (map f)
+flatMap f = flatten . map f
 
 -- | Flatten a list of lists to a list (again).
 -- HOWEVER, this time use the /flatMap/ function that you just wrote.
@@ -233,13 +232,7 @@ flattenAgain = flatMap id
 seqOptional ::
   List (Optional a)
   -> Optional (List a)
-seqOptional Nil = Full Nil
-seqOptional ((Full x) :. Nil) = Full (x :. Nil)
-seqOptional ((Full x) :. xs) = case ys of
-                                 (Full y) -> Full (x :. y)
-                                 _        -> Empty
-                               where ys = (seqOptional xs)
-seqOptional _ = Empty
+seqOptional = foldRight (twiceOptional (:.)) (Full Nil)
 
 -- | Find the first element in the list matching the predicate.
 --
@@ -261,10 +254,7 @@ find ::
   (a -> Bool)
   -> List a
   -> Optional a
-find _ Nil = Empty
-find f (x :. xs)
-    | (f x) == True = Full x
-    | otherwise = find f xs
+find p = foldRight (\a o -> if p a then Full a else o) Empty
 
 -- | Determine if the length of the given list is greater than 4.
 --
@@ -299,8 +289,7 @@ lengthGT4 _ = False
 reverse ::
   List a
   -> List a
-reverse =
-  error "todo: Course.List#reverse"
+reverse = foldLeft (\xs x -> x :. xs) Nil
 
 -- | Produce an infinite `List` that seeds with the given value at its head,
 -- then runs the given function for subsequent elements
@@ -328,8 +317,7 @@ produce f x = x :. produce f (f x)
 notReverse ::
   List a
   -> List a
-notReverse =
-  error "todo: Is it even possible?"
+notReverse = id
 
 ---- End of list exercises
 
